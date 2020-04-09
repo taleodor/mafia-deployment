@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  mafia-express:
+    image: taleodor/mafia-express
+    environment:
+     - REDIS_HOST=redis
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        parallelism: 1
+        delay: 10s
+  mafia-vue:
+    image: taleodor/mafia-vue
+    ports:
+     - "8081:80"
+    environment:
+     - HUB_HOST=mafia-express
+     - HUB_PORT=3000
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        parallelism: 1
+        delay: 10s
+    depends_on:
+     - mafia-express
+  redis:
+    image: redis:5.0.8-buster
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      update_config:
+        parallelism: 1
+        delay: 10s
