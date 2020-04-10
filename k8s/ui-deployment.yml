@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mafia-ui
+  namespace: mafia
   labels:
     name: mafia-ui
     app: mafia
@@ -23,6 +24,6 @@ spec:
         - name: HUB_HOST
           value: mafia-backend-service.mafia
         - name: HUB_PORT
-          value: 3000
+          value: "3000"
         ports:
         - containerPort: 80

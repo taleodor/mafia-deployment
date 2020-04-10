@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mafia-backend-service
+  name: mafia-ui-service
   namespace: mafia
 spec:
   selector:
     app: mafia
-    name: mafia-backend
+    name: mafia-ui
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 80
+      targetPort: 80
 
