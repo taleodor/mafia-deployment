@@ -8,4 +8,4 @@ then
 fi
 images=$(/snap/bin/microk8s.kubectl get pods -n mafia -o jsonpath="{.items[*].status.containerStatuses[0].imageID}")
 docker pull relizaio/reliza-go-client
-docker run --rm relizaio/reliza-go-client instdata -i $1 -k $2 --images $images
+docker run --rm relizaio/reliza-go-client instdata -i $1 -k $2 --images "$images"
