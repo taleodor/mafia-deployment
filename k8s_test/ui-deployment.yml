@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mafia-ui
+  namespace: mafia
+  labels:
+    name: mafia-ui
+    app: mafia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mafia
+  template:
+    metadata:
+      labels:
+        name: mafia-ui
+        app: mafia
+    spec:
+      containers:
+      - name: mafia-ui-container
+        image: taleodor/mafia-vue@sha256:1b2a493987d73cfff5b9b66fdfb4b30862cb28ca188f4f602cdbeaeaa0f93eeb
+        env:
+        - name: HUB_HOST
+          value: mafia-backend-service.mafia
+        - name: HUB_PORT
+          value: "3000"
+        ports:
+        - containerPort: 80
