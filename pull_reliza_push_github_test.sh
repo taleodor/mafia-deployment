@@ -16,6 +16,7 @@ docker run --rm -v /home/rundocker/mafia-deployment/k8s_templates/:/indir -v /ho
 exitcode=$(echo $?)
 if [ $exitcode -gt 0 ];then
   echo "Error retrieving data from Reliza Hub for test env, aborting"
+  git reset --hard origin/master
   exit 1
 fi
 
