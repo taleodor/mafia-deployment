@@ -11,7 +11,7 @@ fi
 git fetch
 git reset --hard origin/master
 
-docker run --rm -v /home/rundocker/mafia-deployment/k8s_templates/:/indir -v /home/rundocker/mafia-deployment/k8s_production/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env PRODUCTION
+docker run --rm -v /mafia-deployment/k8s_templates/:/indir -v /mafia-deployment/k8s_production/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env PRODUCTION
 exitcode=$(echo $?)
 if [ $exitcode -gt 0 ];then
   echo "Error retrieving data from Reliza Hub for production env, aborting"
