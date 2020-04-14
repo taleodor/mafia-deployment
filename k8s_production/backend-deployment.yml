@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mafia-backend
+  namespace: mafia
+  labels:
+    name: mafia-backend
+    app: mafia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mafia
+  template:
+    metadata:
+      labels:
+        name: mafia-backend
+        app: mafia
+    spec:
+      containers:
+      - name: mafia-backend-container
+        image: taleodor/mafia-express@sha256:174818e8fca652c5435dba4b07fe0aa468c06684af252835d2851c6985b64be2
+        env:
+        - name: REDIS_HOST
+          value: redis-service.mafia
+        ports:
+        - containerPort: 3000
