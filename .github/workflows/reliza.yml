@@ -1,0 +1,33 @@
+on: [push]
+
+name: Obtain version from Reliza and register new update there
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Generate version and stream version to Reliza Hub
+        run: |
+          # get version
+          docker pull relizaio/reliza-go-client
+          docker run --rm relizaio/reliza-go-client getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+          # show reliza command output in case there is error
+          cat full_version_output
+          # now construct actual version - we could use jq, but why install another tool in CI env?
+          cat full_version_output | grep version | cut -d ':' -f 2 | cut -d '"' -f 2 > version
+          vvar=$(cat version)
+          # Construct Reliza command to stream version to reliza
+          echo -n "--artid github.com/$GITHUB_REPOSITORY " >> reliza_command
+          echo -n "--artbuildid github$GITHUB_ACTION$GITHUB_SHA " >> reliza_command
+          echo -n "--artcimeta GitHub Actions " >> reliza_command
+          echo -n "--arttype file " >> reliza_command
+          echo -n "--artdigests sha1:$GITHUB_SHA " >> reliza_command
+          echo -n "-b $GITHUB_REF --vcstype git --commit $GITHUB_SHA -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
+              -v $vvar" >> reliza_command
+          cat reliza_command
+          # send version to reliza
+          docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
