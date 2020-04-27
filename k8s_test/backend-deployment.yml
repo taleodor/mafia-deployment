@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: mafia-backend-container
-        image: taleodor/mafia-express@sha256:d79b21d71e54d9cee2bb21eed0a73c51f88b13d5c28458481dfc2b2a249219fd
+        image: taleodor/mafia-express@sha256:926300e3d58c2a94d857308a74b145f729ea937145292e034a5e17da52aed191
         env:
         - name: REDIS_HOST
           value: redis-service.mafia
