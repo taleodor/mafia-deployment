@@ -12,7 +12,7 @@ git fetch
 git reset --hard origin/master
 
 docker pull relizaio/reliza-go-client
-docker run --rm -v /home/rundocker/mafia-deployment/k8s_templates/:/indir -v /home/rundocker/mafia-deployment/k8s_test/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env TEST --instance $3 --namespace $4
+docker run --rm -v /mafia-deployment/k8s_templates/:/indir -v /mafia-deployment/k8s_test/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env TEST --instance $3 --namespace $4
 exitcode=$(echo $?)
 if [ $exitcode -gt 0 ];then
   echo "Error retrieving data from Reliza Hub for test env, aborting"
