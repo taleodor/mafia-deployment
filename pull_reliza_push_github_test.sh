@@ -1,6 +1,6 @@
 #!/bin/bash
 ## $1 - reliza hub api id, $2 - reliza hub api key, $3 - reliza instance, $4 - reliza namespace
-# require at least 2 params
+# require at least 4 params
 if [ "$#" -lt 4 ]
 then
         echo "Usage: api_id api_key instance namespace"

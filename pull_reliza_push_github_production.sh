@@ -1,9 +1,9 @@
 #!/bin/bash
-## $1 - reliza hub api id, $2 - reliza hub api key
-# require at least 2 params
-if [ "$#" -lt 2 ]
+## $1 - reliza hub api id, $2 - reliza hub api key, $3 - reliza instance, $4 - reliza namespace
+# require at least 4 params
+if [ "$#" -lt 4 ]
 then
-        echo "Usage: api_id api_key"
+        echo "Usage: api_id api_key instance namespace"
         exit 1
 fi
 
@@ -11,7 +11,7 @@ fi
 git fetch
 git reset --hard origin/master
 
-docker run --rm -v /mafia-deployment/k8s_templates/:/indir -v /mafia-deployment/k8s_production/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env PRODUCTION
+docker run --rm -v /mafia-deployment/k8s_templates/:/indir -v /mafia-deployment/k8s_production/:/outdir relizaio/reliza-go-client parsetemplate -i $1 -k $2 --env PRODUCTION --instance $3 --namespace $4
 exitcode=$(echo $?)
 if [ $exitcode -gt 0 ];then
   echo "Error retrieving data from Reliza Hub for production env, aborting"
