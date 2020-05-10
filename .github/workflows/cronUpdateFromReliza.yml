@@ -1,0 +1,14 @@
+on:
+  schedule:
+    - cron:  '0/5 * * * *'
+
+name: Pull versions from Reliza and obtain k8s definitions if changed
+
+jobs:
+  update:
+    name: Update
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: test
+        run: echo test
