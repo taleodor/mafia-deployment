@@ -34,6 +34,8 @@ jobs:
           lines=$(git status -s | wc -l)
           if [ $lines -gt 0 ];then
             echo "committing"
+            git config --global user.name 'reliza-auto'
+            git config --global user.email 'info@reliza.io'
             git add .
             git commit -m "fix: auto-update of deployment based on Reliza Hub details"
             git push
