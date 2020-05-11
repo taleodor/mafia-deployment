@@ -41,6 +41,26 @@ jobs:
             git add .
             git commit -m "fix: auto-update of deployment based on Reliza Hub details"
             git push
+            commit_sha=$(git log -1 --pretty='%H')
+            # Generate version and stream version to Reliza Hub
+            # get version
+            docker run --rm relizaio/reliza-go-client getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+            # show reliza command output in case there is error
+            cat full_version_output
+            # now construct actual version - we could use jq, but why install another tool in CI env?
+            cat full_version_output | grep version | cut -d ':' -f 2 | cut -d '"' -f 2 > version
+            vvar=$(cat version)
+            # Construct Reliza command to stream version to reliza
+            echo -n "--artid github.com/$GITHUB_REPOSITORY " >> reliza_command
+            echo -n "--artbuildid github$GITHUB_ACTION$commit_sha " >> reliza_command
+            echo -n "--artcimeta GitHub Actions " >> reliza_command
+            echo -n "--arttype file " >> reliza_command
+            echo -n "--artdigests sha1:$commit_sha " >> reliza_command
+            echo -n "-b $GITHUB_REF --vcstype git --commit $commit_sha -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
+              -v $vvar" >> reliza_command
+            cat reliza_command
+            # send version to reliza
+            docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
           else
             echo "no change, nothing to commit"
           fi
