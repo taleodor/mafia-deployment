@@ -31,6 +31,8 @@ jobs:
           done
       - name: Check if the change happened and commit
         run: |
+          cd $GITHUB_WORKSPACE
+          git status
           lines=$(git status -s | wc -l)
           if [ $lines -gt 0 ];then
             echo "committing"
