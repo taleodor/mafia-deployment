@@ -4,11 +4,39 @@ on:
 
 name: Pull versions from Reliza and obtain k8s definitions if changed
 
+# BUILD_ENV_PARAMS secret must be created in the format 
+# --env TEST|k8s_test,--env PRODUCTION --instance fc87512a-983c-4127-8f5f-2f876a0f1b76 --namespace default|k8s_production
+# (different variations are comma separaed, instance and namespace are optional, output directory follows vertical bar | separator)
+
+# INDIRECTORY secret must be set to the directory containing base definitions, i.e. k8s_templates
+
 jobs:
   update:
     name: Update
     runs-on: ubuntu-latest
-
+    env:
+      BUILD_ENV_PARAMS: ${{ secrets.BUILD_ENV_PARAMS }}
+      INDIRECTORY: ${{ secrets.INDIRECTORY }}
+      RELIZA_API_ID: ${{ secrets.RELIZA_ORGANIZATION_API_ID }}
+      RELIZA_API_KEY: ${{ secrets.RELIZA_ORGANIZATION_API_KEY }}
     steps:
-      - name: test
-        run: echo test
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update definitions based on Reliza Hub data
+        run: |
+          IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
+          for envbuild in "${ENV_BUILDS[@]}"; do
+            IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
+            docker run --rm -v /mafia-deployment/$INDIRECTORY/:/indir -v /mafia-deployment/${SPLIT_BUILD_ENV[1]/:/outdir} relizaio/reliza-go-client parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
+          done
+      - name: Check if the change happened and commit
+        run: |
+          lines=$(git status -s | wc -l)
+          if [ $lines -gt 0 ];then
+            echo "committing"
+            git add .
+            git commit -m "fix: auto-update of deployment based on Reliza Hub details"
+            git push
+          else
+            echo "no change, nothing to commit"
+          fi
