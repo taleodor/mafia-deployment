@@ -33,18 +33,25 @@
   fi
   
 .submit-to-reliza-script: &submit-to-reliza-script |
+  echo "running submit-to-reliza-script"
   cd $CI_PROJECT_DIR
   # check if git commit has been submitted to Reliza Hub earlier, and submit release if not
   commit_sha=$(git log -1 --pretty='%H')
+  echo "commit sha found: $commit_sha"
+  echo "checking if hash present on relizahub"
   hashcheck=$(docker run --rm relizaio/reliza-go-client checkhash -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --hash $commit_sha)
+  echo "hash check value = "
   echo $hashcheck
   # now only create new release if no release was found with same hash
   if [ "$hashcheck" = "{}" ];then
     # Generate version and stream version to Reliza Hub
     # get version
+    echo "hash check was empty, generating new version and streaming to relizahub"
     docker pull relizaio/jq
     RLZ_VER_JSON=$(docker run --rm relizaio/reliza-go-client getversion -u $RELIZA_HUB_URI -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY -b $CI_COMMIT_REF_NAME --metadata GitLab)
+    echo "reliza version json found: $RLZ_VER_JSON"
     RLZ_FULL_VER=$(echo $RLZ_VER_JSON | docker run -i --rm relizaio/jq -r ".version")
+    echo "RLZ_FULL_VER = $RLZ_FULL_VER"
     # Construct Reliza command to stream version to reliza
     echo -n "--artid $CI_PROJECT_URL " >> reliza_command
     echo -n "--artbuildid gitlabCI_$CI_JOB_ID " >> reliza_command
@@ -56,6 +63,7 @@
     echo -n "-b $CI_COMMIT_REF_NAME --vcstype git --commit $commit_sha -u $RELIZA_HUB_URI -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --vcsuri $CI_PROJECT_URL --date $(git log -1 --date=iso-strict --pretty='%ad') -v $RLZ_FULL_VER" >> reliza_command
     cat reliza_command
     # send version to reliza
+    echo "sending version to reliza"
     docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
     exit_status=$(echo $?)
     if [ $exit_status -ne 0 ];then echo "error on submitting metadata to Reliza Hub, failing build"; fi
