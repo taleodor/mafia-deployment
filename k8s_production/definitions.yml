@@ -1,0 +1,193 @@
+---
+# Source: mafia/templates/backend-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mafia-backend-service
+  namespace: mafia
+spec:
+  selector:
+    app: mafia
+    name: mafia-backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+# Source: mafia/templates/redis-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: mafia
+spec:
+  selector:
+    app: mafia
+    name: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+# Source: mafia/templates/ui-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mafia-ui-service
+  namespace: mafia
+spec:
+  selector:
+    app: mafia
+    name: mafia-ui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# Source: mafia/templates/backend-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mafia-backend
+  namespace: mafia
+  labels:
+    name: mafia-backend
+    app: mafia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mafia
+  template:
+    metadata:
+      labels:
+        name: mafia-backend
+        app: mafia
+    spec:
+      containers:
+      - name: mafia-backend-container
+        image: registry.gitlab.com/mafia5/mafia-express@sha256:18feb6cff5bb4ad049827ef6b838866247d7f1f424e7fb9216b9099b6a3ec218
+        env:
+        - name: REDIS_HOST
+          value: redis-service.mafia
+        ports:
+        - containerPort: 3000
+      imagePullSecrets: 
+      - name : regcred-mafia
+---
+# Source: mafia/templates/ui-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mafia-ui
+  namespace: mafia
+  labels:
+    name: mafia-ui
+    app: mafia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mafia
+  template:
+    metadata:
+      labels:
+        name: mafia-ui
+        app: mafia
+    spec:
+      containers:
+      - name: mafia-ui-container
+        image: registry.gitlab.com/mafia5/mafia-vue@sha256:0bd4a7e0ebada22c42d7f3b4dc8b3a6010355a08291fa80282bd18241374c3c3
+        env:
+        - name: HUB_HOST
+          value: mafia-backend-service.mafia
+        - name: HUB_PORT
+          value: "3000"
+        ports:
+        - containerPort: 80
+      imagePullSecrets: 
+      - name : regcred-mafia
+---
+# Source: mafia/templates/redis-stateful-set.yml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-stateful-set
+  namespace: mafia
+spec:
+  selector:
+    matchLabels:
+      app: mafia
+  replicas: 1
+  serviceName: "redis"
+  template:
+    metadata:
+      labels:
+        name: redis
+        app: mafia
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: redis-container
+          image: redis:5.0.8-buster
+          command: ["redis-server", "--bind", "0.0.0.0"]
+          ports:
+          - containerPort: 6379
+          volumeMounts:
+          - mountPath: "/data"
+            name: redis-data
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 32Gi
+---
+# Source: mafia/templates/ingress-resource-traefik.yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: web-ingressroute
+  namespace: mafia
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`mafia.rhythm.relizahub.com`)
+    kind: Rule
+    services:
+    - name: mafia-ui-service
+      port: 80
+    middlewares:
+      - name: redirect
+---
+# Source: mafia/templates/ingress-resource-traefik.yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: websecure-ingressroute
+  namespace: mafia
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`mafia.rhythm.relizahub.com`)
+    kind: Rule
+    services:
+    - name: mafia-ui-service
+      port: 80
+  tls:
+    certResolver: le
+---
+# Source: mafia/templates/ingress-resource-traefik.yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect
+  namespace: mafia
+spec:
+  redirectScheme:
+    scheme: https
