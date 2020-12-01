@@ -1,0 +1,44 @@
+{{- if .Values.ingress.traefikEnabled}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: web-ingressroute
+  namespace: {{ .Values.namespace }}
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`{{ .Values.ingress.host}}`)
+    kind: Rule
+    services:
+    - name: mafia-ui-service
+      port: {{ .Values.ui.port }}
+    middlewares:
+      - name: redirect
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: websecure-ingressroute
+  namespace: {{ .Values.namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`{{ .Values.ingress.host}}`)
+    kind: Rule
+    services:
+    - name: mafia-ui-service
+      port: {{ .Values.ui.port }}
+  tls:
+    certResolver: le
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect
+  namespace: {{ .Values.namespace }}
+spec:
+  redirectScheme:
+    scheme: https
+{{- end}}

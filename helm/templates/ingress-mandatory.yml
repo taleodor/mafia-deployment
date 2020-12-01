@@ -1,3 +1,4 @@
+{{- if .Values.ingress.nginxEnabled }}
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -291,3 +292,4 @@ spec:
       memory: 90Mi
       cpu: 100m
     type: Container
+{{- end }}

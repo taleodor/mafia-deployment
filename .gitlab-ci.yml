@@ -1,0 +1,82 @@
+.template-script: &template-script |
+  # format of $BUILD_ENV_PARAMS: --env TEST|k8s_test|values_test.yaml,--env PRODUCTION|k8s_production|values_prod.yaml
+  /bin/bash -c \
+  'IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
+  for envbuild in "${ENV_BUILDS[@]}"; do
+    IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
+    mkdir -p $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/values_dir
+    chmod 0777 $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/values_dir
+    docker run --rm -v $CI_PROJECT_DIR/$INDIRECTORY/:/indir -v $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/values_dir:/outdir relizaio/reliza-go-client parsetemplate -u $RELIZA_HUB_URI -i $RELIZA_ORGANIZATION_API_ID -k $RELIZA_ORGANIZATION_API_KEY ${SPLIT_BUILD_ENV[0]}
+    exit_status=$(echo $?)
+    if [ $exit_status -ne 0 ];then echo "error on reliza client template parse, failing build"; fi
+    if [ $exit_status -ne 0 ];then exit 1; fi
+    helm template -f $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/values_dir/${SPLIT_BUILD_ENV[2]} $INDIRECTORY > $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/definitions.yml
+    exit_status=$(echo $?)
+    if [ $exit_status -ne 0 ];then echo "error on helm template, failing build"; fi
+    if [ $exit_status -ne 0 ];then exit 1; fi
+    rm -rf $CI_PROJECT_DIR/${SPLIT_BUILD_ENV[1]}/values_dir
+  done'
+  
+.git-script: &git-script |
+  cd $CI_PROJECT_DIR
+  git status
+  lines=$(git status -s | wc -l)
+  if [ $lines -gt 0 ];then
+    echo "committing"
+    git config --global user.name "$AUTO_COMMITTER_NAME"
+    git config --global user.email "$AUTO_COMMITTER_EMAIL"
+    git add .
+    git commit -m "fix: auto-update of deployment based on Reliza Hub details"
+    git push -o ci.skip "https://${GITLAB_USER_NAME}:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}"
+  else
+    echo "no change, nothing to commit"
+  fi
+  
+.submit-to-reliza-script: &submit-to-reliza-script |
+  cd $CI_PROJECT_DIR
+  # check if git commit has been submitted to Reliza Hub earlier, and submit release if not
+  commit_sha=$(git log -1 --pretty='%H')
+  hashcheck=$(docker run --rm relizaio/reliza-go-client checkhash -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --hash $commit_sha)
+  echo $hashcheck
+  # now only create new release if no release was found with same hash
+  if [ "$hashcheck" = "{}" ];then
+    # Generate version and stream version to Reliza Hub
+    # get version
+    docker pull relizaio/jq
+    RLZ_VER_JSON=$(docker run --rm relizaio/reliza-go-client getversion -u $RELIZA_HUB_URI -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY -b $CI_COMMIT_REF_NAME --metadata GitLab)
+    RLZ_FULL_VER=$(echo $RLZ_VER_JSON | docker run -i --rm relizaio/jq -r ".version")
+    # Construct Reliza command to stream version to reliza
+    echo -n "--artid $CI_PROJECT_URL " >> reliza_command
+    echo -n "--artbuildid gitlabCI_$CI_JOB_ID " >> reliza_command
+    echo -n "--artcimeta GitLab CI commit " >> reliza_command
+    echo -n "--arttype file " >> reliza_command
+    echo -n "--artdigests sha1:$commit_sha " >> reliza_command
+    echo -n "--datestart $BUILD_START " >> reliza_command
+    echo -n "--dateend $(date -Iseconds) " >> reliza_command
+    echo -n "-b $CI_COMMIT_REF_NAME --vcstype git --commit $commit_sha -u $RELIZA_HUB_URI -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --vcsuri $CI_PROJECT_URL --date $(git log -1 --date=iso-strict --pretty='%ad') -v $RLZ_FULL_VER" >> reliza_command
+    cat reliza_command
+    # send version to reliza
+    docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
+    exit_status=$(echo $?)
+    if [ $exit_status -ne 0 ];then echo "error on submitting metadata to Reliza Hub, failing build"; fi
+    if [ $exit_status -ne 0 ];then exit 1; fi
+  else
+    echo "Commit Hash already present on Reliza Hub, not resubmitting release"
+  fi
+
+docker-build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - BUILD_START=$(date -Iseconds)
+    - apk add bash
+    - apk add git
+    - docker pull relizaio/reliza-go-client
+    - cd /tmp; wget https://get.helm.sh/helm-v3.2.4-linux-amd64.tar.gz; echo "8eb56cbb7d0da6b73cd8884c6607982d0be8087027b8ded01d6b2759a72e34b1  helm-v3.2.4-linux-amd64.tar.gz" > checksum.txt; sha256sum -c checksum.txt; tar -xzvf helm-v3.2.4-linux-amd64.tar.gz; cp linux-amd64/helm /usr/bin/; cd $CI_PROJECT_DIR
+  script:
+    - git checkout master
+    - *template-script
+    - *git-script
+    - *submit-to-reliza-script

@@ -1,0 +1,17 @@
+namespace: mafia
+backend:
+  image: registry.gitlab.com/mafia5/mafia-express:latest
+  #image: <%PROJECT__8d3328b4-5cab-4edb-8993-75852a1b7602__master%>
+  replicaCount: 1
+  port: 3000
+  targetPort: 3000
+ui:
+  image: registry.gitlab.com/mafia5/mafia-vue:latest
+  #image: <%PROJECT__55fe88fc-5621-4c90-b006-db94ea1d8a08__master%>
+  replicaCount: 1
+  port: 80
+  targetPort: 80
+ingress:
+  nginxEnabled: false
+  traefikEnabled: true
+  host: mafia.rhythm.relizahub.com

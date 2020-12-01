@@ -1,8 +1,9 @@
+{{- if .Values.ingress.nginxEnabled }}
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: mafia-ingress
-  namespace: mafia
+  namespace: {{ .Values.namespace }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
@@ -13,3 +14,4 @@ spec:
         backend:
           serviceName: mafia-ui-service
           servicePort: 80
+{{- end }}

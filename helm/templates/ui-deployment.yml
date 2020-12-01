@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mafia-ui
-  namespace: mafia
+  namespace: {{ .Values.namespace }}
   labels:
     name: mafia-ui
     app: mafia
 spec:
-  replicas: 1
+  replicas: {{ .Values.ui.replicaCount }}
   selector:
     matchLabels:
       app: mafia
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: mafia-ui-container
-        image: <%PROJECT__55fe88fc-5621-4c90-b006-db94ea1d8a08__master%>
+        image: {{ .Values.ui.image }}
         env:
         - name: HUB_HOST
           value: mafia-backend-service.mafia
@@ -27,3 +27,5 @@ spec:
           value: "3000"
         ports:
         - containerPort: 80
+      imagePullSecrets: 
+      - name : regcred-mafia
