@@ -39,7 +39,7 @@
   commit_sha=$(git log -1 --pretty='%H')
   echo "commit sha found: $commit_sha"
   echo "checking if hash present on relizahub"
-  hashcheck=$(docker run --rm relizaio/reliza-go-client checkhash -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --hash $commit_sha)
+  hashcheck=$(docker run --rm relizaio/reliza-go-client checkhash -u $RELIZA_HUB_URI -i $RELIZA_PROJECT_API_ID -k $RELIZA_PROJECT_API_KEY --hash $commit_sha)
   echo "hash check value = "
   echo $hashcheck
   # now only create new release if no release was found with same hash
