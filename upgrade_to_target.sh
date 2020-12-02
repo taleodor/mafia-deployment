@@ -48,7 +48,7 @@ echo "new backend image = $backend_image"
 if [ "$backend_image" != "$old_backend_image" ] || [ "$ui_image" != "$old_ui_image" ] || [ "$3" = "force" ]
 then
 	echo "New images detected, proceeding with upgrade"
-	/usr/local/bin/helm upgrade mafia --set backend.image=$backend_image,ui.image=$ui_image -f helm/values_prod.yaml helm/
+	/usr/local/bin/helm upgrade mafia --kubeconfig /etc/rancher/k3s/k3s.yaml --set backend.image=$backend_image,ui.image=$ui_image -f ${0%/*}/helm/values_prod.yaml ${0%/*}/helm/
 else
 	echo "No new images, skipping upgrade"
 fi
