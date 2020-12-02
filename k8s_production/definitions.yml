@@ -97,7 +97,7 @@ spec:
     spec:
       containers:
       - name: mafia-ui-container
-        image: registry.gitlab.com/mafia5/mafia-vue@sha256:167db617d65e9986201a09d1201b9fa1b979c442577376dc1c9108985e43aa45
+        image: registry.gitlab.com/mafia5/mafia-vue@sha256:5c2aa8acbaeee8f6772095681a21a8432846eb4e0cf8d01823e9e7f9dc34c40a
         env:
         - name: HUB_HOST
           value: mafia-backend-service.mafia
