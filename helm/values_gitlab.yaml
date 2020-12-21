@@ -1,11 +1,11 @@
 namespace: mafia
 backend:
-  image: github.com/taleodor/mafia-express:latest
+  image: registry.gitlab.com/mafia5/mafia-express:latest
   replicaCount: 1
   port: 3000
   targetPort: 3000
 ui:
-  image: github.com/taleodor/mafia-vue:latest
+  image: registry.gitlab.com/mafia5/mafia-vue:latest
   replicaCount: 1
   port: 80
   targetPort: 80
