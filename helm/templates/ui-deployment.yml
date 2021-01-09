@@ -22,7 +22,7 @@ spec:
         image: {{ .Values.ui.image }}
         env:
         - name: HUB_HOST
-          value: mafia-backend-service.mafia
+          value: mafia-backend-service
         - name: HUB_PORT
           value: "3000"
         ports:
