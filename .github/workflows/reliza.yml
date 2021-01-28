@@ -13,8 +13,8 @@ jobs:
       - name: Generate version and stream version to Reliza Hub
         run: |
           # get version
-          docker pull relizaio/reliza-go-client
-          docker run --rm relizaio/reliza-go-client getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+          docker pull relizaio/reliza-cli
+          docker run --rm relizaio/reliza-cli getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
           # show reliza command output in case there is error
           cat full_version_output
           cat full_version_output | jq -r ".version" > version
@@ -29,4 +29,4 @@ jobs:
               -v $vvar" >> reliza_command
           cat reliza_command
           # send version to reliza
-          docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
+          docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command)

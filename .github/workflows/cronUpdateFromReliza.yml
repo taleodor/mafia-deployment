@@ -27,7 +27,7 @@ jobs:
           IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
           for envbuild in "${ENV_BUILDS[@]}"; do
             IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
-            docker run --rm -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-go-client parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
+            docker run --rm -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-cli parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
           done
       - name: Check if the change happened and commit
         run: |
@@ -44,7 +44,7 @@ jobs:
             commit_sha=$(git log -1 --pretty='%H')
             # Generate version and stream version to Reliza Hub
             # get version
-            docker run --rm relizaio/reliza-go-client getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+            docker run --rm relizaio/reliza-cli getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
             # show reliza command output in case there is error
             cat full_version_output
             # now construct actual version - we could use jq, but why install another tool in CI env?
@@ -60,7 +60,7 @@ jobs:
               -v $vvar" >> reliza_command
             cat reliza_command
             # send version to reliza
-            docker run --rm relizaio/reliza-go-client addrelease $(cat reliza_command)
+            docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command)
           else
             echo "no change, nothing to commit"
           fi
