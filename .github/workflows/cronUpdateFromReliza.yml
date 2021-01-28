@@ -26,9 +26,9 @@ jobs:
         run: |
           IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
           for envbuild in "${ENV_BUILDS[@]}"; do
-            chmod 0777 $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}
+            # chmod 0777 $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}
             IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
-            docker run --rm -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-cli parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
+            docker run --rm -u root -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-cli parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
           done
       - name: Check if the change happened and commit
         run: |
