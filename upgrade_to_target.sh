@@ -16,7 +16,7 @@ echo "old ui image = $old_ui_image"
 # TODO - wrap in a mapping props file instead
 # establish target images from reliza hub
 # note that sed is required to remove docker tag if supplied, since k8s doesn't have it
-rlzclientout=$(docker run --rm relizaio/reliza-go-client    \
+rlzclientout=$(docker run --rm relizaio/reliza-cli    \
     getlatestrelease    \
     -u ${2-https://relizahub.com} \
     -i INSTANCE__cb584aff-fe0e-4f79-97f4-3a8c3a0d233e    \
@@ -29,7 +29,7 @@ rlzclientout=$(docker run --rm relizaio/reliza-go-client    \
     backend_image_hash=$(echo $rlzclientout | /usr/bin/jq -r .artifactDetails[0].digests[] | grep sha256);    \
     backend_image=$(echo $(echo $rlzclientout | /usr/bin/jq -r .artifactDetails[0].identifier)@$backend_image_hash | sed "s/:latest//")
 
-rlzclientout=$(docker run --rm relizaio/reliza-go-client    \
+rlzclientout=$(docker run --rm relizaio/reliza-cli    \
     getlatestrelease    \
     -u ${2-https://relizahub.com} \
     -i INSTANCE__cb584aff-fe0e-4f79-97f4-3a8c3a0d233e    \

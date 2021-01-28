@@ -8,5 +8,5 @@ then
 fi
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 images=$(/usr/local/bin/kubectl get pods -n mafia -o jsonpath="{.items[*].status.containerStatuses[0].imageID}")
-docker pull relizaio/reliza-go-client
-docker run --rm relizaio/reliza-go-client instdata -u ${2-https://relizahub.com}  -i INSTANCE__cb584aff-fe0e-4f79-97f4-3a8c3a0d233e -k $1 --images "$images"
+docker pull relizaio/reliza-cli
+docker run --rm relizaio/reliza-cli instdata -u ${2-https://relizahub.com}  -i INSTANCE__cb584aff-fe0e-4f79-97f4-3a8c3a0d233e -k $1 --images "$images"
