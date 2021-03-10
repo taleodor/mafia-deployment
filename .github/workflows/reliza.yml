@@ -22,6 +22,7 @@ jobs:
           # Construct Reliza command to stream version to reliza
           echo -n "--artid github.com/$GITHUB_REPOSITORY " >> reliza_command
           echo -n "--artbuildid github$GITHUB_ACTION$GITHUB_SHA " >> reliza_command
+          echo -n "--artbuilduri https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID " >> reliza_command
           echo -n "--artcimeta GitHub Actions " >> reliza_command
           echo -n "--arttype file " >> reliza_command
           echo -n "--artdigests sha1:$GITHUB_SHA " >> reliza_command
