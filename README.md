@@ -8,6 +8,8 @@ Component projects:
 
 Deployment is managed via [Reliza Hub](https://relizahub.com).
 
+Writeup on CI/CD integration with Reliza Hub: https://itnext.io/building-kubernetes-cicd-pipeline-with-github-actions-argocd-and-reliza-hub-e7120b9be870
+
 
 # Deployment via docker-compose
 1. Clone this project
