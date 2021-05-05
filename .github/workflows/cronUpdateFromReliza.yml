@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Update definitions based on Reliza Hub data
         run: |
           IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
@@ -58,8 +60,15 @@ jobs:
             echo -n "--artcimeta GitHub Actions " >> reliza_command
             echo -n "--arttype file " >> reliza_command
             echo -n "--artdigests sha1:$commit_sha " >> reliza_command
-            echo -n "-b $GITHUB_REF --vcstype git --commit $commit_sha -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
+            echo -n "-b $GITHUB_REF --vcstype git --commit $commit_sha --commitmessage "$(git log -1 --pretty='%s')" \
+              -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
               -v $vvar" >> reliza_command
+            # extract last release commit and prepare list of commits
+            last_commit=$(docker run --rm relizaio/reliza-cli getlatestrelease -i ${{ secrets.RELIZA_API_ID }} -k ${{ secrets.RELIZA_API_KEY }} --branch $GITHUB_REF | jq -r ".sourceCodeEntryDetails.commit")
+            if [ ! -z "$last_commit" ]
+            then
+              echo -n "--commits $(git log $last_commit..$GITHUB_SHA --date=iso-strict --pretty='%H|||%ad|||%s' | base64 -w 0) " >> reliza_command
+            fi
             cat reliza_command
             # send version to reliza
             docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command)
