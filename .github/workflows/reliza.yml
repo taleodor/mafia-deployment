@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 50
       - name: Generate version and stream version to Reliza Hub
         run: |
           # get version
@@ -28,7 +28,7 @@ jobs:
           echo -n "--artcimeta GitHub Actions " >> reliza_command
           echo -n "--arttype file " >> reliza_command
           echo -n "--artdigests sha1:$GITHUB_SHA " >> reliza_command
-          echo -n "-b $GITHUB_REF --vcstype git --commit $GITHUB_SHA --commitmessage "$(git log -1 --pretty='%s')" \
+          echo -n "-b $GITHUB_REF --vcstype git --commit $GITHUB_SHA --commitmessage \"$(git log -1 --pretty='%s')\" \
             -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
             -v $vvar " >> reliza_command
           # extract last release commit and prepare list of commits
@@ -39,4 +39,5 @@ jobs:
           fi
           cat reliza_command
           # send version to reliza
-          docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command)
+          echo docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command) > rlz_cmd_exec
+          eval $(cat rlz_cmd_exec)
