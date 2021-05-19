@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: mafia-ui-container
-        image: taleodor/mafia-vue@sha256:213053937e5ed8156b8be010a8418deba1970e4bc1c95275b6fdf707a0de443f
+        image: taleodor/mafia-vue@sha256:2f530784c54bbb7e8ffb0276ea3d9c5c528ed5ab828b91f975a12e3fd571bdcb
         env:
         - name: HUB_HOST
           value: mafia-backend-service.mafia
