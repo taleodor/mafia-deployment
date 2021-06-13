@@ -1,4 +1,4 @@
-# Tags replaced with Reliza CLI version 2021.06.8 on 2021-06-13T16:17:52Z
+# Tags replaced with Reliza CLI version 2021.06.8 on 2021-06-13T16:36:54Z
 # According to latest approved images for the instance at testmafia.brolia.com
 apiVersion: v1
 kind: Service
@@ -64,7 +64,7 @@ spec:
       containers:
       - env:
         - name: REDIS_HOST
-          value: redis-service.mafia
+          value: redis-service
         image: taleodor/mafia-express@sha256:8328cd7de911367ef2a52a60f8696720e89c152c9a437983c7eccf411b0ede75
         name: mafia-backend-container
         ports:
@@ -92,7 +92,7 @@ spec:
       containers:
       - env:
         - name: HUB_HOST
-          value: mafia-backend-service.mafia
+          value: mafia-backend-service
         - name: HUB_PORT
           value: "3000"
         image: taleodor/mafia-vue@sha256:04be42ee28a9483166fb1bc0e66fa3f079c056cd2a4545411dfd5ca17b3b4fa2
