@@ -10,7 +10,7 @@ spec:
   - match: Host(`testmafia.brolia.com`)
     kind: Rule
     services:
-    - name: mafia-ui
+    - name: mafia-ui-service
       port: 80
     middlewares:
       - name: redirect
@@ -29,7 +29,7 @@ spec:
   - match: Host(`testmafia.brolia.com`)
     kind: Rule
     services:
-    - name: mafia-ui
+    - name: mafia-ui-service
       port: 80
   tls:
     certResolver: le
