@@ -22,6 +22,6 @@ spec:
         image: taleodor/mafia-express
         env:
         - name: REDIS_HOST
-          value: redis-service.mafia
+          value: redis-service
         ports:
         - containerPort: 3000
