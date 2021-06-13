@@ -34,9 +34,10 @@ jobs:
 #          done
       - name: Update definitions based on Reliza Hub data
         run: |
+          docker run --rm -v ${PWD}/k8s:/sourcek k8s.gcr.io/kustomize/kustomize:v4.1.3 build /sourcek/overlays/test
           docker run --rm -v ${PWD}/k8s:/sourcek k8s.gcr.io/kustomize/kustomize:v4.1.3 build /sourcek/overlays/test > k8s_test_gcp/kustomized_defs.yaml
           docker run --rm -u root -v ${PWD}/k8s_test_gcp/k8s_test_gcp/kustomized_defs.yaml:/values.yaml -v ${PWD}/k8s_test_gcp:/output_dir relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri testmafia.brolia.com --infile /values.yaml --outfile /output_dir/mafia_defs.yaml
-          rm k8s_test_gcp/kustomized_defs.yaml
+          # rm k8s_test_gcp/kustomized_defs.yaml
       - name: Check if the change happened and commit
         run: |
           cd $GITHUB_WORKSPACE
