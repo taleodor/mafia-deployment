@@ -24,14 +24,19 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 50
+#      - name: Update definitions based on Reliza Hub data
+#        run: |
+#          IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
+#          for envbuild in "${ENV_BUILDS[@]}"; do
+#            # chmod 0777 $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}
+#            IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
+#            docker run --rm -u root -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-cli parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
+#          done
       - name: Update definitions based on Reliza Hub data
         run: |
-          IFS="," read -ra ENV_BUILDS <<< "$BUILD_ENV_PARAMS"
-          for envbuild in "${ENV_BUILDS[@]}"; do
-            # chmod 0777 $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}
-            IFS="|" read -ra SPLIT_BUILD_ENV <<< "$envbuild"
-            docker run --rm -u root -v $GITHUB_WORKSPACE/$INDIRECTORY/:/indir -v $GITHUB_WORKSPACE/${SPLIT_BUILD_ENV[1]}/:/outdir relizaio/reliza-cli parsetemplate -i $RELIZA_API_ID -k $RELIZA_API_KEY ${SPLIT_BUILD_ENV[0]}
-          done
+          docker run --rm -v ${PWD}/k8s:/sourcek k8s.gcr.io/kustomize/kustomize:v4.1.3 build /sourcek/overlays/test > k8s_test_gcp/kustomized_defs.yaml
+          docker run --rm -v ${PWD}/k8s_test_gcp/k8s_test_gcp/kustomized_defs.yaml:/values.yaml -v ${PWD}/k8s_test_gcp:/output_dir relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri testmafia.brolia.com --infile /values.yaml --outfile /output_dir/mafia_defs.yaml
+          rm k8s_test_gcp/kustomized_defs.yaml
       - name: Check if the change happened and commit
         run: |
           cd $GITHUB_WORKSPACE

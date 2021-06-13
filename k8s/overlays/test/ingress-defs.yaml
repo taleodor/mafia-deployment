@@ -1,0 +1,46 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: web-ingressroute
+  namespace: mafia-test
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`testmafia.brolia.com`)
+    kind: Rule
+    services:
+    - name: mafia-ui
+      port: 80
+    middlewares:
+      - name: redirect
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: websecure-ingressroute
+  namespace: mafia-test
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`testmafia.brolia.com`)
+    kind: Rule
+    services:
+    - name: mafia-ui
+      port: 80
+  tls:
+    certResolver: le
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect
+  namespace: mafia-test
+spec:
+  redirectScheme:
+    scheme: https

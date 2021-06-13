@@ -19,7 +19,7 @@ spec:
         fsGroup: 999
       containers:
         - name: redis-container
-          image: redis:5.0.8-buster
+          image: redis:6.2.4-buster
           command: ["redis-server", "--bind", "0.0.0.0"]
           ports:
           - containerPort: 6379
@@ -33,4 +33,4 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 32Gi
+            storage: 2Gi
