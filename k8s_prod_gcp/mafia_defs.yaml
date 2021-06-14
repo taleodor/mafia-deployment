@@ -120,7 +120,7 @@ spec:
         - redis-server
         - --bind
         - 0.0.0.0
-        image: redis:6.2.4-buster
+        image: docker.io/library/redis@sha256:a732b1359e338a539c25346a50bf0a501120c41dc248d868e546b33e32bf4fe4
         name: redis-container
         ports:
         - containerPort: 6379
