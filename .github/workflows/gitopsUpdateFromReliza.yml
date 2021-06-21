@@ -36,12 +36,12 @@ jobs:
         run: |
           # test
           docker run --rm -v ${PWD}/k8s:/sourcek k8s.gcr.io/kustomize/kustomize:v4.1.3 build /sourcek/overlays/test > k8s_test_gcp/kustomized_defs.yaml
-          docker run --rm -u root -v ${PWD}/k8s_test_gcp/kustomized_defs.yaml:/values.yaml -v ${PWD}/k8s_test_gcp:/output_dir relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri testmafia.brolia.com --infile /values.yaml --outfile /output_dir/mafia_defs.yaml --provenance=false
+          docker run --rm -u root -v ${PWD}/k8s_test_gcp/kustomized_defs.yaml:/values.yaml relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri testmafia.brolia.com --infile /values.yaml --provenance=false > k8s_test_gcp/mafia_defs.yaml
           rm k8s_test_gcp/kustomized_defs.yaml
           
           # prod
           docker run --rm -v ${PWD}/k8s:/sourcek k8s.gcr.io/kustomize/kustomize:v4.1.3 build /sourcek/overlays/prod > k8s_prod_gcp/kustomized_defs.yaml
-          docker run --rm -u root -v ${PWD}/k8s_prod_gcp/kustomized_defs.yaml:/values.yaml -v ${PWD}/k8s_prod_gcp:/output_dir relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri mafia.brolia.com --infile /values.yaml --outfile /output_dir/mafia_defs.yaml --provenance=false
+          docker run --rm -u root -v ${PWD}/k8s_prod_gcp/kustomized_defs.yaml:/values.yaml relizaio/reliza-cli replacetags -i $RELIZA_API_ID -k $RELIZA_API_KEY --instanceuri mafia.brolia.com --infile /values.yaml --provenance=false > k8s_prod_gcp/mafia_defs.yaml
           rm k8s_prod_gcp/kustomized_defs.yaml
       - name: Check if the change happened and commit
         run: |
