@@ -14,9 +14,20 @@ jobs:
           fetch-depth: 50
       - name: Generate version and stream version to Reliza Hub
         run: |
+          # extract last release commit and prepare list of commits
+          last_commit=$(docker run --rm relizaio/reliza-cli getlatestrelease -i ${{ secrets.RELIZA_API_ID }} -k ${{ secrets.RELIZA_API_KEY }} --branch $GITHUB_REF | jq -r ".sourceCodeEntryDetails.commit")
+          if [ ! -z "$last_commit" ]
+          then
+            echo -n "--commits $(git log $last_commit..$GITHUB_SHA --date=iso-strict --pretty='%H|||%ad|||%s' | base64 -w 0) " > get_version_command
+          fi
           # get version
           docker pull relizaio/reliza-cli
-          docker run --rm relizaio/reliza-cli getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+          echo -n "-k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub \
+            --commit $GITHUB_SHA --commitmessage \"$(git log -1 --pretty='%s')\" --date $(git log -1 --date=iso-strict --pretty='%ad') \
+            --vcstype git --vcsuri github.com/$GITHUB_REPOSITORY " >> get_version_command
+          # debug
+          echo "$(cat get_version_command)"
+          docker run --rm relizaio/reliza-cli getversion $(cat get_version_command) > full_version_output 2>&1
           # show reliza command output in case there is error
           cat full_version_output
           cat full_version_output | jq -r ".version" > version
@@ -28,15 +39,7 @@ jobs:
           echo -n "--artcimeta GitHub Actions " >> reliza_command
           echo -n "--arttype file " >> reliza_command
           echo -n "--artdigests sha1:$GITHUB_SHA " >> reliza_command
-          echo -n "-b $GITHUB_REF --vcstype git --commit $GITHUB_SHA --commitmessage \"$(git log -1 --pretty='%s')\" \
-            -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
-            -v $vvar " >> reliza_command
-          # extract last release commit and prepare list of commits
-          last_commit=$(docker run --rm relizaio/reliza-cli getlatestrelease -i ${{ secrets.RELIZA_API_ID }} -k ${{ secrets.RELIZA_API_KEY }} --branch $GITHUB_REF | jq -r ".sourceCodeEntryDetails.commit")
-          if [ ! -z "$last_commit" ]
-          then
-            echo -n "--commits $(git log $last_commit..$GITHUB_SHA --date=iso-strict --pretty='%H|||%ad|||%s' | base64 -w 0) " >> reliza_command
-          fi
+          echo -n "-b $GITHUB_REF -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -v $vvar " >> reliza_command
           cat reliza_command
           # send version to reliza
           echo docker run --rm relizaio/reliza-cli addrelease $(cat reliza_command) > rlz_cmd_exec

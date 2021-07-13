@@ -58,7 +58,10 @@ jobs:
             commit_sha=$(git log -1 --pretty='%H')
             # Generate version and stream version to Reliza Hub
             # get version
-            docker run --rm relizaio/reliza-cli getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub > full_version_output 2>&1
+            docker run --rm relizaio/reliza-cli getversion -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -b $GITHUB_REF --metadata GitHub \
+              --commit $commit_sha --commitmessage \"$(git log -1 --pretty='%s')\" \
+              --commits $(git log -1 --date=iso-strict --pretty='%H|||%ad|||%s' | base64 -w 0) \
+              --vcstype git --vcsuri github.com/$GITHUB_REPOSITORY > full_version_output 2>&1
             # show reliza command output in case there is error
             cat full_version_output
             # now construct actual version - we could use jq, but why install another tool in CI env?
@@ -71,9 +74,7 @@ jobs:
             echo -n "--artcimeta GitHub Actions " >> reliza_command
             echo -n "--arttype file " >> reliza_command
             echo -n "--artdigests sha1:$commit_sha " >> reliza_command
-            echo -n "-b $GITHUB_REF --vcstype git --commit $commit_sha --commitmessage \"$(git log -1 --pretty='%s')\" \
-              -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} --vcsuri github.com/$GITHUB_REPOSITORY \
-              -v $vvar " >> reliza_command
+            echo -n "-b $GITHUB_REF -k ${{ secrets.RELIZA_API_KEY }} -i ${{ secrets.RELIZA_API_ID }} -v $vvar " >> reliza_command
             # prepare list of commits
             echo -n "--commits $(git log -1 --date=iso-strict --pretty='%H|||%ad|||%s' | base64 -w 0) " >> reliza_command
             cat reliza_command
