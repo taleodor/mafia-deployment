@@ -63,7 +63,7 @@ spec:
       - env:
         - name: REDIS_HOST
           value: redis-service
-        image: taleodor/mafia-express@sha256:103a0f941dd3a021fdb9bea4c89b8b0a9d0de51d1212d4219486790e165f7005
+        image: taleodor/mafia-express@sha256:67b6e078d269ccebd13380fe640116edfa380667dbd9bcf5d2e0108e0ad18473
         name: mafia-backend-container
         ports:
         - containerPort: 3000
@@ -93,7 +93,7 @@ spec:
           value: mafia-backend-service
         - name: HUB_PORT
           value: "3000"
-        image: taleodor/mafia-vue@sha256:1f9e261124cac8321712cf724cd7c89057d23ba51af6050892539514ce86eb66
+        image: taleodor/mafia-vue@sha256:a6d37609593c91eb9a20119f1b30f5899d053f8e10dfec8dea841414a3af3e60
         name: mafia-ui-container
         ports:
         - containerPort: 80
