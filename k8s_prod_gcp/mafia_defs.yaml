@@ -93,7 +93,7 @@ spec:
           value: mafia-backend-service
         - name: HUB_PORT
           value: "3000"
-        image: taleodor/mafia-vue@sha256:a6d37609593c91eb9a20119f1b30f5899d053f8e10dfec8dea841414a3af3e60
+        image: taleodor/mafia-vue@sha256:0c81d43980c4c388bc9f2d619a11b3dd9650baa71949b4f023aa5cf41dba0f46
         name: mafia-ui-container
         ports:
         - containerPort: 80
