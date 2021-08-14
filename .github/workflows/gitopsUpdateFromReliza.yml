@@ -64,9 +64,8 @@ jobs:
               --vcstype git --vcsuri github.com/$GITHUB_REPOSITORY > full_version_output 2>&1
             # show reliza command output in case there is error
             cat full_version_output
-            # now construct actual version - we could use jq, but why install another tool in CI env?
-            cat full_version_output | grep version | cut -d ':' -f 2 | cut -d '"' -f 2 > version
-            vvar=$(cat version)
+            # now construct actual version
+            vvar=$(cat full_version_output | jq -r ".version")
             # Construct Reliza command to stream version to reliza
             echo -n "--artid github.com/$GITHUB_REPOSITORY " >> reliza_command
             echo -n "--artbuildid github$GITHUB_ACTION$commit_sha " >> reliza_command
