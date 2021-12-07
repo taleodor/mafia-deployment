@@ -9,6 +9,9 @@ Component projects:
 
 Deployment is managed via [Reliza Hub](https://relizahub.com). You can view read-only demo at https://demo.relizahub.com
 
+General CI/CD principles:
+- 7 Best Practices of Modern CI/CD: https://worklifenotes.com/2020/06/04/7-best-practices-modern-cicd/
+
 Writeups on possible CI/CD integrations with Reliza Hub: 
 - Helm CICD Tutorial: https://worklifenotes.com/2021/05/22/helm-cd-with-reliza-hub-tutorial/
 - CICD pipeline using ArgoCD: https://itnext.io/building-kubernetes-cicd-pipeline-with-github-actions-argocd-and-reliza-hub-e7120b9be870
