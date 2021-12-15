@@ -63,7 +63,7 @@ spec:
       - env:
         - name: REDIS_HOST
           value: redis-service
-        image: taleodor/mafia-express@sha256:b0f3dc2ffdf7e6918af85344027f0af12b142e79eb9e6ee9422b502e0ddc7677
+        image: taleodor/mafia-express@sha256:e817353bd716c383d9ad36d101409482569c686bf8d7542812cbe416f1ba8004
         name: mafia-backend-container
         ports:
         - containerPort: 3000
