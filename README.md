@@ -7,7 +7,7 @@ Component projects:
 - Back-end project: [mafia-express](https://github.com/taleodor/mafia-express).
 - Redis
 
-Deployment is managed via [Reliza Hub](https://relizahub.com). You can view read-only demo at https://demo.relizahub.com
+Deployment is managed via [Reliza Hub](https://relizahub.com).
 
 General CI/CD principles:
 - 7 Best Practices of Modern CI/CD: https://worklifenotes.com/2020/06/04/7-best-practices-modern-cicd/
