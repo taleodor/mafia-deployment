@@ -1,3 +1,6 @@
+# Update: 2026-03-26
+Helm Chart Moved under [https://github.com/relizaio/helm-charts/](https://github.com/relizaio/helm-charts/)
+
 # Mafia Card Shuffle
 
 This is a deployment project for Mafia Card Shuffle (simple card and player order shuffle for a classic Mafia game). You can find deployed project at [https://mafia.brolia.com](https://mafia.brolia.com).
